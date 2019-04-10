@@ -1,10 +1,8 @@
 #include <stdio.h>
 
 int main() {
-    d
-    gfg
-    gfgrg
-    fdgf
-    
-  return o:
+    char str[5];
+    scanf("%s\n", str);
+    printf("%s", str);
+    return 0;
 }
