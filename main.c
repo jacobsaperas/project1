@@ -10,38 +10,40 @@ int main()
 {
 	/* to input characters a string needs to be used.
 	When using characters the data type "char" must be used.*/
-	char text[100] = "XYZ";  // declares a string of length 100.
+	char text[100] = "xyz";  // declares a string of length 100.
 	int index;  // "int index" will represent the index (ASCII placement) of a character.
-	int n = 5; // variable "n" will be used to represent the letter's rotation.
-
-/*	
+	int n = 1; // variable "n" will be used to represent the letter's rotation.
+	
 	printf("Message being encrytped: "); // prints text between " " to screen.
 	gets(text);                         // the "gets" function basically works as a "scanf" but includes spaces.
 	//... This is useful since when inputing text it is seen as one string of characters.
 	//.... The "gets" function will hold the text inputed onto the screen.
 	printf("Enter rotation: "); // acts as a prompt to enter rotation to the screen
 	scanf("%d", &n);  // The "scanf" function holds an integer of size "n" and stores it in the memory adress.
-	//.... The number inputed represents the letter's rotation. 
-*/	
+	//.... The number inputed represents the letter's rotation. 	
+	
 	/* The code below will encrypt text by shifting letters "n" times to the right.*/
 	
 	for (index = 0; text[index] != '\0'; ++index) { // This will run every character...
 	// .... from the start of the string to the end.
 		
 		if (text[index] >= 'A' && text[index] <= 'Z') { // if a character of the input was an...
-		//... upper case letter the character will go through this if statement.
+		//... upper case letter it will go through this if statement.
 			text[index] = text[index] + n;  // shifts letter from "text[index]", "n" places.
 			
-			if (text[index] > 'Z') { // If the character's ASCII position exceeds 'Z'...
-			//... i.e Z with rotation of 2, then the character will go through
-				text[index] = text[index] - 26; // 
+			if (text[index] > 'Z') { // If the letter's ASCII position exceeds 'Z'...
+			//... i.e Z with rotation of 2, then the character will go through this if statement.
+				text[index] = text[index] - 26; // since there are 26 letters, -26 will take the ...
+				// letter back 26 places in it's ASCII position. i.e Z with rotation 2 would become B.
 			}
 		}
-			else if (text[index] >= 'a' && text[index] <= 'z') {
-			text[index] = text[index] + n;
+			else if (text[index] >= 'a' && text[index] <= 'z') { 
+			text[index] = text[index] + n - 26;
+			printf("%s\n", text);
 			
 			    if (text[index] > 'z') {
-				    text[index] = text[index] - 26;
+				    text[index] = text[index] + n - 26 - 32;
+				    printf("%s", text);
 			    }
 		
 	        }
