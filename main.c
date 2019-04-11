@@ -10,9 +10,9 @@ int main()
 {
 	/* to input characters a string needs to be used.
 	When using characters the data type "char" must be used.*/
-	char text[100] = "debug string";  // declares a string of length 100.
+	char text[100] = "XYZ";  // declares a string of length 100.
 	int index;  // "int index" will represent the index (ASCII placement) of a character.
-	int n = 1; // variable "n" will be used to represent the letter's rotation.
+	int n = 5; // variable "n" will be used to represent the letter's rotation.
 
 /*	
 	printf("Message being encrytped: "); // prints text between " " to screen.
@@ -32,8 +32,9 @@ int main()
 		//... upper case letter the character will go through this if statement.
 			text[index] = text[index] + n;  // shifts letter from "text[index]", "n" places.
 			
-			if (text[index] > 'Z') { // If the character's ASCII position exceeds 
-				text[index] = text[index] + n - 26;
+			if (text[index] > 'Z') { // If the character's ASCII position exceeds 'Z'...
+			//... i.e Z with rotation of 2, then the character will go through
+				text[index] = text[index] - 26; // 
 			}
 		}
 			else if (text[index] >= 'a' && text[index] <= 'z') {
