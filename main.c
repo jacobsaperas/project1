@@ -1,4 +1,6 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
  
 /* this code will give you choices to either use a rotation or substitution cipher and encrypt or decrypt text.
 You will first be asked to input your message. Then you will be asked to choose between a rotation or 
@@ -20,7 +22,10 @@ int main()
 	int flag; // "flag" will be a number inputed so it's data type is "int".
 	char text[100]; // "text[100]" represents a string of characters so it's data type is "char".
 	printf("enter text: "); // prompt to enter text.
-	scanf("%[^\n]s", text); 
+	scanf("%[^\n]s", text);
+	for(int i = 0; i < strlen(text); i++) {
+    	text[i] = toupper((unsigned char) text[i]);
+    }
     printf("Rotation ciphers:\nPress 1 to encrypt or 2 to decrypt\n"); // prompt for choosing your cipher.
 	printf("Substitution ciphers:\nPress 3 to encrypt or 4 to decrypt: "); // a second "printf" so it fits neater.
 	scanf("%d", &flag); // number inputed will choose what cipher will be used. "&" means the number is stored...
