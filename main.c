@@ -21,14 +21,25 @@ int main()
 {
 	int flag; // "flag" will be a number inputed so it's data type is "int".
 	char text[100]; // "text[100]" represents a string of characters so it's data type is "char".
-	printf("enter text: "); // prompt to enter text.
-	scanf("%[^\n]s", text);
+	FILE *input;
+	FILE *number;
+	input = fopen("input.txt", "r");
+	number = fopen("number.txt", "r");
+	printf("enter text: "); 
+	
+	while (feof(input) == 0) {
+	    // prompt to enter text.
+	fscanf(input, "%[^\n]s", text);
 	for(int i = 0; i < strlen(text); i++) {
     	text[i] = toupper((unsigned char) text[i]);
     }
+}
+    while (feof(number) == 0) {
+       fscanf (number, "%d", &flag); 
+    }
     printf("Rotation ciphers:\nPress 1 to encrypt or 2 to decrypt\n"); // prompt for choosing your cipher.
-	printf("Substitution ciphers:\nPress 3 to encrypt or 4 to decrypt: "); // a second "printf" so it fits neater.
-	scanf("%d", &flag); // number inputed will choose what cipher will be used. "&" means the number is stored...
+	printf("Substitution ciphers:\nPress 3 to encrypt or 4 to decrypt: %d", flag); // a second "printf" so it fits neater.
+	 // number inputed will choose what cipher will be used. "&" means the number is stored...
 	// ... in the memory adress of "flag", giving it that value.
 	
 	/* This switch case will call the function that will be used. For example, if you chose to do a
@@ -61,23 +72,7 @@ int main()
 		  	/* the two "if" loops below changes lower case letters to upper case and shifts the letter forward
 		  	"n" times.It uses the ASCII position of the letters to shift it accordingly. */
 		  	
-		  	if (text[index] >= 97 && text[index] <= 122) { // if the character's ASCII index is between 97-122 (a-z).
-			    text[index] += n - 32; // "n" is added to the letter's ASCII position to shift it's ASCII...
-			    //... position forward to the next letter "n" times."-32" is taken away to shift the letter's...
-			    //... ASCII position back 32 times to convert it to upper case (A-Z covers 65-90). For example...
-			    //... the letter, "b", with a rotation of 2 would become "d". "-32" and it becomes "D" based off...
-			    //... it's ASCII index
-			    
-			    if (text[index] > 90) { // this "if" loop is inside the previous "if" loop so "+ n - 32" has...
-			    //... already been done. This means the letter has already been rotated and converted to upper case.
-			    //... This loop is used if the shift of "n" causes the letter to go past the ASCII index of 90 (Z).
-			        text[index] -= 26; // "-26" takes the letter back to the start of the alphabet. For example...
-			        //... , the letter "z" with a rotation of 1 would go to ASCII position 91 from the previous...
-			        //... loop and "-26" in this loop would take it back to "A" (ASCII position of 65).
-			    }
-			} // end of loop for lower case letters
-	    	
-	    	else if (text[index] >= 65 && text[index] <= 90) { // if the character's ASCII index is between...
+		  	if (text[index] >= 65 && text[index] <= 90) { // if the character's ASCII index is between...
 	    	//... 65-90 (A-Z)
 			text[index] += n; // "n" is added shifting the ASCII index forward by "n".
 		    
@@ -102,17 +97,7 @@ int main()
 	    scanf("%d", &n);  
 	    for (index = 0; text[index] != '\0'; ++index) { 
 			
-			if (text[index] >= 97 && text[index] <= 122) {
-			    text[index] = text[index] - n - 32; // "-n" instead of "+n". Rotates the letters left instead...
-			    //... of right. For example, "d" with rotatition 2 becomes "B".
-			    
-			    if (text[index] < 65) { // if the characters ASCII index is below 65 (A).
-			        text[index] += 26; // "+26" to shift ASCII index to the end of the alphabet.
-			        //... For example, "a" with a rotation of 1 would become "Z".
-			    }
-			}
-	    	
-	    	else if (text[index] >= 65 && text[index] <= 90) { 
+			if (text[index] >= 65 && text[index] <= 90) { 
 			    text[index] -= n; // "-n" shifts the imputed letter left "n" times.
 		    
 			    if (text[index] < 65) {
@@ -129,10 +114,6 @@ int main()
     void encryptsubstitution(char text[]) {
         int index;
         for (index = 0; text[index] != '\0'; ++index) {
-			
-			if (text[index] >= 97 && text[index] <= 122) {
-			    text[index] -= 32; // This "if" loop converts lower case letters to upper case with no rotation.
-			}
 		
 		switch(text[index]) { // This switch case will change each letter's ASCII index to a new index...
 		//... , represented by '' around a letter. For example, "A" is represented as "'A'".
@@ -203,10 +184,6 @@ int main()
     void decryptsubstitution(char text[]) {
         int index;
         for (index = 0; text[index] != '\0'; ++index) { 
-			
-			if (text[index] >= 97 && text[index] <= 122) {
-			    text[index] -= 32;
-			}
 		
 		switch(text[index]) {
 		    case 'Q': text[index] = 'A'; // "Q" changes to "A" instead of "A" to "Q".
@@ -266,3 +243,4 @@ int main()
         printf("decrypted text: %s", text);
     	 // Prints (or puts) the substituted decrypted text onto the screen.
     }
+    
