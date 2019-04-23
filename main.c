@@ -1,246 +1,177 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
- 
-/* this code will give you choices to either use a rotation or substitution cipher and encrypt or decrypt text.
-You will first be asked to input your message. Then you will be asked to choose between a rotation or 
-substitution encryption or decryption. If you chose a rotation cipher, you will input the rotation of letters.
-The rotation or substitution cipher will then print the output in upper case letters even if the input has 
-lower case letters. Anything that isn't a letter will be unmodified.*/
+#include <stdlib.h>
 
-/* Below are function prototypes. These are declared at the top to clearly show what functions are used. */
+void encryptrotation(char message[]); // this function will be called when encrypting a rotation cipher.
+void decryptrotation(char message[]); // this function will be called when decrypting a rotation cipher.
+char *encrypt(char *message, char code[]);
+char *decrypt(char *message, char code[]);
+int find_index(char code[], char char_to_find);
 
-void encryptrotation(char text[]); // this function will be called when encrypting a rotation cipher.
-void decryptrotation(char text[]); // this function will be called when decrypting a rotation cipher.
-void encryptsubstitution(char text[]); // this function will be called when encrypting a substitution cipher.
-void decryptsubstitution(char text[]); // this function will be called when decrypting a substitution cipher.
-
-/* this main function lets you enter your message and choose your cipher. */
-
-int main()
-{
-	int flag; // "flag" will be a number inputed so it's data type is "int".
-	char text[100]; // "text[100]" represents a string of characters so it's data type is "char".
-	FILE *input;
-	FILE *number;
-	input = fopen("input.txt", "r");
-	number = fopen("number.txt", "r");
-	printf("enter text: "); 
-	
-	while (feof(input) == 0) {
-	    // prompt to enter text.
-	fscanf(input, "%[^\n]s", text);
-	for(int i = 0; i < strlen(text); i++) {
-    	text[i] = toupper((unsigned char) text[i]);
+int main() {
+    FILE *choose, *output;
+    char message[1000];
+    char code[26];
+    int flag;
+    choose = fopen("choose.txt", "r");
+    output = fopen("output.txt", "w"); // opening the file, "output.txt" and writes it to the file ("w").
+    FILE *input;
+    input = fopen("input.txt", "r");
+    while (feof(input) == 0) {
+        fscanf(input, "%[^\n]s", message); // "fscanf" reads the file, "input.txt", as a string that includes spaces, and stores it as "text".
+	   printf("enter text: %s\n", message); // prints the string from file, "input.txt", to display it on the screen as an output.
+	   fprintf(output, "enter text: %s\n", message); // prints to file, "output.txt".
+        for(int i = 0; i < strlen(message); ++i) {
+            message[i] = toupper((unsigned char) message[i]);
+        }
     }
-}
-    while (feof(number) == 0) {
-       fscanf (number, "%d", &flag); 
-    }
-    printf("Rotation ciphers:\nPress 1 to encrypt or 2 to decrypt\n"); // prompt for choosing your cipher.
-	printf("Substitution ciphers:\nPress 3 to encrypt or 4 to decrypt: %d", flag); // a second "printf" so it fits neater.
-	 // number inputed will choose what cipher will be used. "&" means the number is stored...
-	// ... in the memory adress of "flag", giving it that value.
-	
-	/* This switch case will call the function that will be used. For example, if you chose to do a
-    rotation decryption then you would have pressed 1 and the switch case will choose case 1 and exit (break). */
-	
-	switch(flag) { // "flag" is the number inputed and chooses the case by number.
-	    case 1: encryptrotation(text); // if 1 was inputed, the code jumps to "encryptrotation" function.
-	    break;                         // "break" means the code exits if case 0 was chosen.
-	    case 2: decryptrotation(text); // if 2 was inputed, the code jumps to "decryptrotation" function.
-	    break;
-	    case 3: encryptsubstitution(text); 
-	    break;
-	    case 4: decryptsubstitution(text);
-	} // end of switch case.
 
-	return 0;
+    while (feof(choose) == 0) {
+       fscanf (choose, "%d", &flag); // reads from the file, "choose". "&" used to store the number in "flags" memory adress.
+       // Not needed for strings.
+    }
+    printf("Rotation ciphers:\nPress 1 to encrypt or 2 to decrypt\n"); // prints choices to screen and shows what choice you made.
+	printf("Substitution ciphers:\nPress 3: %d\n", flag); // a second "printf" so it fits neater.
+	fprintf(output, "Rotation cipher:\nPress 1 to encrypt or 2 to decrypt\n"); // prints to file, "output.txt".
+	fprintf(output, "Substitution cipher: \nPress 3: %d\n", flag); // prints to file, "output.txt".
+   if (flag == 1) { // "flag" is the number inputed to the file, "choose.txt", and chooses the case by the number.
+	     encryptrotation(message); // if 1 was inputed, the code jumps to "encryptrotation" function.
+	    }                 // "break" means the code exits if case 1 was chosen.
+	if (flag == 2) {
+	   decryptrotation(message); // if 2 was inputed, the code jumps to "decryptrotation" function.
+    }
+   if (flag == 3) {
+     char *encrypted_message = encrypt(message, code);
+    printf("Encrypted message: %s\n", encrypted_message);
+    fprintf(output, "Encrypted message: %s\n", encrypted_message);
+     char *decrypted_message = decrypt(encrypted_message, code);
+    printf("Decrypted message: %s\n", decrypted_message);
+    fprintf(output, "Decrypted message: %s\n", decrypted_message);
 }
-    /* This function is for encrytping a rotation cipher. First, the rotation will be entered, and then
-    the letters will be rotated by that number. Lower case letters will also be converted to upper case. */	
-	
-	void encryptrotation(char text[]) { // this is a function definition. 
-	//... If you chose a rotation encryption, "case 0" will jump to this...
-	//... function. The function is "void", meaning it doesnt return a value.
-	    int index, n; // these variables only exist inside this function.
-	    printf("\nEnter rotation: "); // prompt to enter rotation.
-	    scanf("%d", &n); // enter rotation here.
-	    for (index = 0; text[index] != '\0'; ++index) { // this "for" loop allows every character in the...
+
+    return 0;
+}
+
+/* this function is for rotation encryptions and the rotation is held in file, "rot.txt".
+The rotation and decrypted text will be written to the file, *output2.txt". */
+
+void encryptrotation(char message[]) { // the function definition. It has type "void" as it doesn't return a value.
+	//... If you chose a rotation encryption, "case 1" will jump to this function.
+    int i, n; // these variables only exist inside this function.
+	FILE *rot; // file declared inside function as it isn't needed for substitutuion ciphers.
+	FILE *output2; // file declared in every function.
+	rot = fopen("rot.txt", "r"); // file is opened and named "rot". The file, "rot.txt", will be read 
+    output2 = fopen("output2.txt", "w"); 
+	while (feof(rot) == 0) {
+        fscanf (rot, "%d", &n);
+    }
+    printf("Enter rotation: %d\n", n); // prints the rotation onto the screen
+	fprintf(output2, "Enter rotation: %d\n", n); // prints the rotation to file, "output2.txt". 
+	    for (i = 0; i < strlen(message); ++i) { // this "for" loop allows every character in the...
 	    //... string to be read and changed accordingly one at a time until it reaches the end of the string.
 		  
-		  	/* the two "if" loops below changes lower case letters to upper case and shifts the letter forward
-		  	"n" times.It uses the ASCII position of the letters to shift it accordingly. */
+		  	/* the two "if" loops below shift upper case letters forward "n" times. The lower case letters have
+		  	already been converted to upper case in the main function.
+		  	It uses the ASCII position of the letters to shift it accordingly. */
 		  	
-		  	if (text[index] >= 65 && text[index] <= 90) { // if the character's ASCII index is between...
-	    	//... 65-90 (A-Z)
-			text[index] += n; // "n" is added shifting the ASCII index forward by "n".
+		  	if (message[i] >= 65 && message[i] <= 90) { // if the character's ASCII index is between 65-90 (A-Z)
+			message[i] += n; // "n" is added shifting the ASCII index forward by "n".
 		    
-			    if (text[index] > 90) { // If the shift puts the ASCII index above 90. Also inside the previous...
-			    //... "if" loop so rotation has already occured.
-				    text[index] -= 26; // "-26" takes the letter back to the start of the alphabet in upper case.
+			    if (message[i] > 90) { // If the shift puts the ASCII index above 90. Also, this "if" loop is inside the previous...
+			    //... "if" loop so forward rotation of "n" has already occured.
+				    message[i] -= 26; // "-26" takes the letter to the start of the alphabet.
 			    }
 	    	} // end of loop for upper case letters.
-	    } // end of "for" loop. Every character in the string runs through the "for" loop before the string...
-	    //... exits the loop. It exits as a rotated and upper case string.
-	    printf("encrypted text: %s", text); // changes in the "for" loop printed here.
-    	 // puts the rotated string as the output. Works like a "scanf" function and works with the...
-    	//... "gets" function. The "gets" function gets the text and the "puts" function takes the text and...
-    	//... puts it onto the screen.
+	    } // end of "for" loop. Every character in the string runs through the "for" loop before the string exits the loop.
+	    //... It exits as a rotated and upper case string.
+	printf("encrypted text: %s", message); // altered text printed here.
+	fprintf(output2, "encrypted text: %s", message);
+	fclose(rot); // closing the file to save RAM.
+	fclose(output2);   
 	} // end of "encryptrotation" function.
 	
-    void decryptrotation(char text[]) { // works the same as the "encryptrotation" function but rotates...
-    //... the letters backwards instead of forwards. 
-        int index, n; // variables only exist inside this function. These variables have the same names as ...
+    /* this function is for rotation decryptions and the rotation is held in the file, "rot.txt".
+    The rotation and decrypted text will be written to the file, *output2.txt". */
+    
+    void decryptrotation(char message[]) { // same as an "encryptrotation" function but rotates the letters backwards instead of forwards. 
+        int i, n; // variables only exist inside this function. These variables have the same names as ...
         // "encryptrotation" function to show the similarities between the 2 functions.
-        printf("\nEnter rotation: "); 
-	    scanf("%d", &n);  
-	    for (index = 0; text[index] != '\0'; ++index) { 
+        FILE *rot; // file for rotatition declared here again as it exists only inside this function.
+        FILE *output2; // file declared again since it's in a different function.
+        rot = fopen("rot.txt", "r");
+        output2 = fopen("output2.txt", "w");
+        while (feof(rot) == 0) {
+       fscanf (rot, "%d", &n);
+    }
+    printf("Enter rotation: %d\n", n);
+    fprintf(output2, "Enter rotation: %d\n", n);
+	    for (i = 0; i < strlen(message); ++i) { 
 			
-			if (text[index] >= 65 && text[index] <= 90) { 
-			    text[index] -= n; // "-n" shifts the imputed letter left "n" times.
+			if (message[i] >= 65 && message[i] <= 90) { 
+			    message[i] -= n; // "-n" shifts the inputed letter backward "n" times.
 		    
-			    if (text[index] < 65) {
-				    text[index] += 26; 
+			    if (message[i] < 65) { // if the shift puts the ASCII index below 65. Also inside previous "if" loop
+				    message[i] += 26; // "+26" to take the upper case letter to the end of the alphabet.
 			    }
 	    	}
     	}
-    	printf("decrypted text: %s", text);
+    	printf("decrypted text: %s", message);
+    	fprintf(output2, "decrypted text: %s", message);
+    	fclose(rot);
+    	fclose(output2);
     }
-    /* The function below will substitute a letter of the alphabet for a letter from a given alphabet substitution.
-    In this case, the alphabet substitution is the qwerty keyboard layout. For example, "A" becomes "Q".
-    Lower case letters will also become upper case.*/
-    
-    void encryptsubstitution(char text[]) {
-        int index;
-        for (index = 0; text[index] != '\0'; ++index) {
-		
-		switch(text[index]) { // This switch case will change each letter's ASCII index to a new index...
-		//... , represented by '' around a letter. For example, "A" is represented as "'A'".
-		//... Since every letter is already in upper case there are 26 switch cases instead of 52.
-		    case 'A': text[index] = 'Q'; // "'A'" is the letter being changed from the "text[index]". It's ASCII...
-		    //... index will change from "'A'" to "'Q'", converting the letter to "Q".
-		        break; // if the inputed letter was "A" or "a" then the letter will exit here as Q. 
-		        //... If the input wasn't "A" or "a" the letter would go to the next case unchanged
-		    case 'B': text[index] = 'W';
-		        break; // If the letter wasn't "A" or "B" it would go to the next case and so on.
-		    case 'C': text[index] = 'E';
-		        break;
-		    case 'D': text[index] = 'R';
-		        break;
-		    case 'E': text[index] = 'T';
-		        break;
-		    case 'F': text[index] = 'Y';
-		        break;
-		    case 'G': text[index] = 'U';
-		        break;
-		    case 'H': text[index] = 'I';
-		        break;
-		    case 'I': text[index] = 'O';
-		        break;
-            case 'J': text[index] = 'P';
-		        break;
-		    case 'K': text[index] = 'A';
-		        break;
-		    case 'L': text[index] = 'S';
-		        break;
-		    case 'M': text[index] = 'D';
-		        break;
-		    case 'N': text[index] = 'F';
-		        break;
-		    case 'O': text[index] = 'G';
-		        break;
-            case 'P': text[index] = 'H';
-		        break;
-		    case 'Q': text[index] = 'J';
-		        break;
-		    case 'R': text[index] = 'K';
-		        break;
-		    case 'S': text[index] = 'L';
-		        break;
-		    case 'T': text[index] = 'Z';
-		        break;
-		    case 'U': text[index] = 'X';
-		        break;
-		    case 'V': text[index] = 'C';
-		        break;
-            case 'W': text[index] = 'V';
-		        break;
-		    case 'X': text[index] = 'B';
-		        break;
-		    case 'Y': text[index] = 'N';
-		        break;
-		    case 'Z': text[index] = 'M';
-		        break;
-			}
+
+int find_index(char code[], char char_to_find) {
+    for(int i = 0; i < 26; i ++) {
+        if(code[i] == char_to_find) {
+            return i;
         }
-        printf("decrypted text: %s", text); 
-     // Prints (or puts) the substituted encrypted text onto the screen.
     }
-    
-    /* This function works like the "encryptsubstitution" function but converts the keyboard qwerty layout back
-    to the normal alphabet (a-z). */ 
-    
-    void decryptsubstitution(char text[]) {
-        int index;
-        for (index = 0; text[index] != '\0'; ++index) { 
-		
-		switch(text[index]) {
-		    case 'Q': text[index] = 'A'; // "Q" changes to "A" instead of "A" to "Q".
-		        break;
-		    case 'W': text[index] = 'B';
-		        break;
-		    case 'E': text[index] = 'C';
-		        break;
-		    case 'R': text[index] = 'D';
-		        break;
-		    case 'T': text[index] = 'E';
-		        break;
-		    case 'Y': text[index] = 'F';
-		        break;
-		    case 'U': text[index] = 'G';
-		        break;
-		    case 'I': text[index] = 'H';
-		        break;
-		    case 'O': text[index] = 'I';
-		        break;
-            case 'P': text[index] = 'J';
-		        break;
-		    case 'A': text[index] = 'K';
-		        break;
-		    case 'S': text[index] = 'L';
-		        break;
-		    case 'D': text[index] = 'M';
-		        break;
-		    case 'F': text[index] = 'N';
-		        break;
-		    case 'G': text[index] = 'O';
-		        break;
-            case 'H': text[index] = 'P';
-		        break;
-		    case 'J': text[index] = 'Q';
-		        break;
-		    case 'K': text[index] = 'R';
-		        break;
-		    case 'L': text[index] = 'S';
-		        break;
-		    case 'Z': text[index] = 'T';
-		        break;
-		    case 'X': text[index] = 'U';
-		        break;
-		    case 'C': text[index] = 'V';
-		        break;
-            case 'V': text[index] = 'W';
-		        break;
-		    case 'B': text[index] = 'X';
-		        break;
-		    case 'N': text[index] = 'Y';
-		        break;
-		    case 'M': text[index] = 'Z';
-		        break;
-			}
+    return -1;
+}
+
+char *encrypt(char *message, char code[]) {
+    int length = strlen(message);
+    FILE *alpha;
+    FILE *output2;
+    alpha = fopen("alpha.txt", "r");
+    output2 = fopen("output2.txt", "w");
+    while (feof(alpha) == 0) {
+       fscanf (alpha, "%s", code);
+       fprintf(output2, "alphabet substitution: %s", code);
+    for(int i = 0; i < strlen(code); ++i) {
+            code[i] = toupper((unsigned char) code[i]);
         }
-        printf("decrypted text: %s", text);
-    	 // Prints (or puts) the substituted decrypted text onto the screen.
     }
+
+    char *encrypted_message = (char *) malloc(sizeof(char)*length);
     
+    for(int i = 0; i < length; ++i) {
+        int encryption_index = toupper(message[i]) - 'A';
+        if(encryption_index >= 0 && encryption_index < 26) {
+            encrypted_message[i] = code[encryption_index];
+        } else {
+            encrypted_message[i] = message[i];
+        }
+    }
+    return encrypted_message;
+}
+
+char *decrypt(char *message, char code[]) {
+    int length = strlen(message);
+    char *decrypted_message = (char *) malloc(sizeof(char)*length);
+    
+    for(int i = 0; i < length; ++i) {
+        int decryption_index = toupper(message[i]) - 'A';
+        if(decryption_index >= 0 && decryption_index < 26) {
+            int code_index = find_index(code, toupper(message[i]));
+            decrypted_message[i] = 'A' + code_index;
+        } else {
+            decrypted_message[i] = message[i];
+        }
+    }
+    return decrypted_message;
+}
+
+
