@@ -2,8 +2,9 @@
 #include <string.h> // used to manipulate strings.
 #include <ctype.h> // used to open files.
 #include <stdlib.h> // used for macros and to set the size of a string.
+#include "input.h"
 
-/* this code will give you choices to either use a rotation or substitution cipher and encrypt or decrypt text.
+/* this code will give you choices to either use a rotation or substitution cipher to encrypt and then decrypt text.
 You will first be asked to input your message in the file, "input.txt".
 Then you will choose between a rotation cipher or substitution cipher. 
 This is inputed in file, "choose.txt", where rotation = 1 and substitution = 2.
@@ -25,28 +26,18 @@ char *decryptsub(char *text, char sub[]); // this function will be called when d
 int find(char sub[], char c); // this function is used to find the index of a character when decrypting a substitution cipher.
 
 int main() {
-    FILE *choose, *output, *input; // declaring files that will be used in this function. They can be named anything.
-    char text[1000]; // type "char" since it holds a string. The string has length "[1000]" so it can hold a lot of characters.
-    char sub[26]; // variable for substituted alphabet with size 26 as there as 26 letters in the alphabet.
-    int flag;
-    choose = fopen("choose.txt", "r"); // opening the file, "choose.txt" and reads from it.
-    output = fopen("output.txt", "w"); // opening the file, "output.txt" and writes it to the file ("w").
-    input = fopen("input.txt", "r");
-    while (feof(input) == 0) { // "feof" checks that you have reached the end of the file, "input". When the "input" doesn't equal...
-	//... 0, i.e. -1, then the "while" loop will end.
-        fscanf(input, "%[^\n]s", text); // "fscanf" reads the file, "input.txt", as a string that includes spaces, and stores it as "text".
-	    printf("enter text: %s\n", text); // prints the string from file, "input.txt", to display it on the screen as an output.
-	    fprintf(output, "enter text: %s\n", text); // prints to file, "output.txt".
+    FILE *output; // declaring files that will be used in this function. They can be named anything.
+    char text[1000] = INPUT; // type "char" since it holds a string. The string has length "[1000]" so it can hold a lot of characters.
+    char sub[] = ALPHA; // variable for substituted alphabet with size 26 as there as 26 letters in the alphabet.
+    int flag = CHOOSE;
+    output = fopen("output.txt", "w"); // opening the file, "output.txt" and writes it to the file ("w")..
+    printf("enter text: %s\n", text); // prints the string from file, "input.txt", to display it on the screen as an output.
+	fprintf(output, "enter text: %s\n", text); // prints to file, "output.txt".
         
-        for(int i = 0; i < strlen(text); ++i) { // "for" loop inside the "while" loop because the string is being altered. The function, ...
-	   //... "strlen", represents the length of the string, so the "for" loop reads every character until the end of the string.
-            text[i] = toupper((char) text[i]); // "[i]" is the ASCII index of the text, and the "toupper" function converts...
-            //... lower case letters to upper case from "text[i]", which is the string from the file, "input.txt".
-        }
-    }
-    while (feof(choose) == 0) {
-       fscanf (choose, "%d", &flag); // reads from the file, "choose". "&" used to store the number in "flags" memory adress.
-       // Not needed for strings.
+    for(int i = 0; i < strlen(text); ++i) { // "for" loop inside the "while" loop because the string is being altered. The function, ...
+	//... "strlen", represents the length of the string, so the "for" loop reads every character until the end of the string.
+       text[i] = toupper((char) text[i]); // "[i]" is the ASCII index of the text, and the "toupper" function converts...
+       //... lower case letters to upper case from "text[i]", which is the string from the file, "input.txt".
     }
     printf("Rotation cipher: Press 1\n"); // prints choices to screen and shows what choice you made.
 	printf("Substitution cipher: Press 2\nYou chose: %d\n", flag); //a second "printf" so it fits neater.
@@ -63,6 +54,7 @@ int main() {
    if (flag == 2) { // "if" loop was used instead of a switch case since variables can't be declared in switch cases.
        char *e_text = encryptsub(text, sub); // to encrypt we need the arguements, "message" and the substituted alphabet ("sub") of...
        //... "encryptsub" and their memory address is held in "*e_text".
+       fprintf(output, "substituted alphabet: %s\n", sub);
        printf("Encrypted message: %s\n", e_text);
        fprintf(output, "Encrypted message: %s\n", e_text);
        char *d_text = decryptsub(e_text, sub); // decrypted message held in pointer, "d_text" (decrypted text).
@@ -80,17 +72,13 @@ hold the memory address of strings. The memory address of "message" will be retu
 
 char *encryptrot(char *text) { // the function definition. It has type "char" as it returns a value.
 	//... If you chose a rotation cipher, "case 1" will jump to this function.
-    int n; // the variable only exists inside this function.
-	FILE *rot; // file declared inside function as it isn't needed for substitutuion ciphers.
+    int n = ROT; // the variable only exists inside this function.
 	FILE *output2; // file declared in every function.
-	rot = fopen("rot.txt", "r"); // file is opened and named "rot". The file, "rot.txt", will be read.
     output2 = fopen("output2.txt", "w"); 
-	while (feof(rot) == 0) {
-        fscanf (rot, "%d", &n);
-    }
     printf("Enter rotation: %d\n", n); // prints the rotation onto the screen.
 	fprintf(output2, "Enter rotation: %d\n", n); // prints the rotation to file, "output2.txt". 
-	    for (int i = 0; i < strlen(text); ++i) { // this "for" loop allows every character in the...
+	
+	for (int i = 0; i < strlen(text); ++i) { // this "for" loop allows every character in the...
 	    //... string to be read and changed accordingly one at a time until it reaches the end of the string. "int i" declared here.
 		  
 		  	/* the two "if" loops below shift upper case letters forward "n" times. The lower case letters have
@@ -108,8 +96,7 @@ char *encryptrot(char *text) { // the function definition. It has type "char" as
 	    } // end of "for" loop. Every character in the string runs through the "for" loop before the string exits the loop.
 	    //... It exits as a rotated and upper case string.
 	return text; // returns text back to main function.
-	fclose(rot); // closing the file to save RAM. Closed after "return text" since "output2.txt" holds rotation.
-	fclose(output2); 
+	fclose(output2); // closing the file to save RAM. Closed after "return text" since "output2.txt" holds rotation.
 } // end of "encryptrotation" function.
 	
     /* this function is for rotation decryptions and the rotation is held in the file, "rot.txt".
@@ -117,14 +104,10 @@ char *encryptrot(char *text) { // the function definition. It has type "char" as
     The rotation will be written to "output2.txt". */
     
    char *decryptrot(char *text) { // same as an "encryptrot" function but rotates the letters backwards instead of forwards. 
-        int n; // variable only exists inside this function. The variables have the same names as ...
+        int n = ROT; // variable only exists inside this function. The variables have the same names as ...
         // "encryptrot" function to show the similarities between the 2 functions.
-        FILE *rot, *output2; // file for rotatition declared here again as it exists only inside this function.
-        rot = fopen("rot.txt", "r");
+        FILE *output2; // file for rotatition declared here again as it exists only inside this function.
         output2 = fopen("output2.txt", "w");
-        while (feof(rot) == 0) {
-            fscanf (rot, "%d", &n);
-        }
 	    for (int i = 0; i < strlen(text); ++i) { 
 			
 			if (text[i] >= 65 && text[i] <= 90) { 
@@ -136,7 +119,6 @@ char *encryptrot(char *text) { // the function definition. It has type "char" as
 	    	}
     	}
     	return text;
-    	fclose(rot);
     	fclose(output2);
     }
 
@@ -146,18 +128,14 @@ It is type "char" as it will hold a string of characters from "text". "sub[]" ho
 The encrypted string will be returned to the main function. */
 
 char *encryptsub(char *text, char sub[]) { // pointers used to return the memory address to the main function.
-    FILE *alpha, *output2; // "*alpha" declared as a file here to be used to open the file, "alpha.txt".
-    alpha = fopen("alpha.txt", "r");
+    FILE *output2; 
     output2 = fopen("output2.txt", "w");
-    while (feof(alpha) == 0) {
-        fscanf (alpha, "%s", sub);
         printf("alphabet substitution: %s\n", sub);
         fprintf(output2, "alphabet substitution: %s", sub);
         
         for(int i = 0; i < strlen(sub); ++i) {
            sub[i] = toupper((unsigned char) sub[i]); // converts the alphabet substitution to upper case since the output is upper case.
         }
-    }
     char *e_text = (char *) malloc(sizeof(char)*strlen(text)); // allocates memory for "message" and returns a pointer to the...
     //... allocated memory. The memory space allocated is the length of the string ("strlen") so it doesn't waste memory.
     for(int i = 0; i < strlen(text); ++i) { // every character of "message" goes through this loop.
